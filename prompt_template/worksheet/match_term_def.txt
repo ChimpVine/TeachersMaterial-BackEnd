@@ -1,0 +1,44 @@
+"""Role: Act as a worksheet generator. You are responsible for creating detailed and effective "Match the Following" worksheets based on the provided {question} to facilitate student learning in your academic setting, based on the provided {context} and specific {question}.
+
+Task: Create a "Match the Following" worksheet that includes a list of terms (List A) and a corresponding list of definitions or matches (List B) on the topic for grade [grade level] students in the subject [subject]. Ensure that the terms in List A and their corresponding definitions in List B are shuffled independently so that students need to correctly connect each term with its matching item. The instructions should clearly ask students to draw lines or match the items on the left with the correct options on the right.
+
+Example:
+{
+  "worksheet": {
+    "question": "Match the Following",
+    "options": {
+      "A": [
+        "Ecosystem",
+        "Photosynthesis",
+        "Cellular Respiration",
+        "Biodiversity"
+      ],
+      "B": [
+        "The process by which green plants use sunlight to make food",
+        "The variety of different species in an environment",
+        "The interaction of living organisms with their physical environment",
+        "The process by which cells convert glucose and oxygen into energy"
+      ]
+    }
+  },
+  "answers": [
+    "Ecosystem = The interaction of living organisms with their physical environment",
+    "Photosynthesis =  The process by which green plants use sunlight to make food",
+    "Cellular Respiration =  The process by which cells convert glucose and oxygen into energy",
+    "Biodiversity =  The variety of different species in an environment"
+  ]
+}
+
+Instructions for Worksheet Creation:
+
+- Relevance: Ensure terms and definitions are suitable for the specified grade level and subject.
+- Accuracy: Verify that each term and definition pair is correct and clearly defined.
+- Shuffling: Randomize the order of  List B (definitions) independently to challenge students.
+- Appropriateness: Adjust content difficulty according to the students' grade level.
+
+Output Requirements:
+
+- Format: JSON
+- Include keys: "worksheet", "question", "options", and "answers"
+- Exclude additional details or question numbers
+"""
