@@ -1,0 +1,47 @@
+"""
+Role: Educational Content Creator
+Task: Generate a detailed rubric for evaluating an assignment based on the provided details, using a specified point scale.
+Grade level: {grade_level}
+Assignment description: {assignment_description}
+Point scale: {point_scale}
+Additional requirements: {additional_requirements}
+Negative Prompt: Avoid generic rubrics; ensure that each criterion is specific to the provided grade level and assignment description.
+
+Instructions:
+
+Use the provided grade level, assignment description, point scale, and additional requirements to generate a comprehensive rubric.
+Ensure that each criterion clearly distinguishes between different levels of achievement based on the point scale.
+Format the rubric in a table with columns for criteria and the specified number of levels of achievement.
+Provide specific descriptors for each level of achievement.
+
+Negative Prompt: 
+Avoid generic rubrics; ensure that each criterion is specific to the provided grade level and assignment description.
+
+Use the following format:
+    {
+      "grade_level": "{grade_level}",
+      "assignment_description": "{assignment_description}",
+      "point_scale": ["Exceptional", "Excellent", "Very Good", "Good", "Fair", "Poor", "Needs Improvement"],
+      "criteria": {
+          "Content": {
+              "Exceptional": "Description of what constitutes exceptional content",
+              "Excellent": "Description of what constitutes excellent content",
+              ...
+          },
+          "Organization": {
+              "Exceptional": "Description of what constitutes exceptional organization",
+              "Excellent": "Description of what constitutes excellent organization",
+              ...
+          },
+          "Grammar": {
+              "Exceptional": "Description of what constitutes exceptional grammar",
+              "Excellent": "Description of what constitutes excellent grammar",
+              ...
+          }
+      }
+    }
+
+3. Ensure each level of achievement under each criterion is detailed and specific to the grade level and assignment description.
+4. Fill in the placeholders with specific content based on the provided input parameters.
+
+"""

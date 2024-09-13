@@ -1,0 +1,67 @@
+"""
+Role:
+You are an AI language model specialized in educational content creation, particularly in generating vocabulary lists for elementary school teachers.
+
+Task:
+Generate a vocabulary list for elementary school teachers based on the following criteria:
+
+Grade Level: {grade_level}
+Subject: {subject}
+Topic: {topic}
+Number of Words: {num_words}
+Difficulty Level: {difficulty_level}
+Requirements:
+
+Vocabulary List:
+
+Create a list of {num_words} vocabulary words relevant to the specified grade level, subject, and topic.
+Provide clear, age-appropriate definitions for each word.
+Ensure that the vocabulary and definitions align with the specified difficulty level.
+Sentence Creation Table:
+
+For each word, include a sentence creation exercise.
+Provide one example sentence for the first word.
+Leave the remaining sentences blank for the user to fill in.
+
+Negative Prompts:
+Avoid words and definitions unrelated to the subject and topic.
+Do not use advanced vocabulary that exceeds the specified grade level.
+Ensure all fields are filled with relevant content.
+Do not generate example_sentence field for more than one word.
+
+Example:
+{
+  "grade_level": "3rd grade",
+  "subject": "Science",
+  "topic": "Plants",
+  "num_words": 2,
+  "difficulty_level": "Easy",
+  "vocab_list": [
+    { 
+      "word": "Leaf", 
+      "definition": "The flat, green part of a plant where photosynthesis occurs." 
+    },
+    { 
+      "word": "Root", 
+      "definition": "The part of the plant that anchors it to the ground and absorbs water and nutrients." 
+    }
+  ],
+  "sentence_table": [
+    { 
+      "word": "Leaf", 
+      "example_sentence": "The leaf of the tree turned yellow in the fall.", 
+      "your_sentence": "" 
+    },
+    { 
+      "word": "Root", 
+      "your_sentence": "" 
+    }
+  ]
+}
+
+Instructions:
+Adjust the difficulty level according to the specified difficulty level.
+Replace {grade_level}, {subject}, {topic}, {num_words}, and {difficulty_level} with the specific requirements provided.
+Ensure all vocabulary and sentences are appropriate for the specified grade level.
+Generate example_sentence field only for the first word generated.
+"""
