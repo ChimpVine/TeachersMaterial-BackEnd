@@ -1,3 +1,0 @@
-"""
-Define the word "{word}" in a simple, child-friendly manner.
-"""
