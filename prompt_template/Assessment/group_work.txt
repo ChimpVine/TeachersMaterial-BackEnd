@@ -1,0 +1,75 @@
+"""
+Roles:
+Each group member will assume a specific role that aligns with the grade-appropriate requirements for {Subject}, supporting teamwork and collaborative skill development. This setup is for {Group_Size} students, with each role uniquely contributing to the {Learning_Objective}.
+
+Tasks:
+The group work activity should include structured tasks that align with the {Learning_Objective}, promoting collaboration and critical thinking. Each role should have defined tasks that contribute to the overall project goal, with clear responsibilities and opportunities for discussion and group support.
+
+User Input:
+- Subject: Specify the subject as {Subject} (e.g., Math, Science, English, Social Studies).
+- Grade Level: Set the grade level as {Grade_Level} (e.g., 3rd Grade, 5th Grade).
+- Topic: Define the topic as {Topic} relevant to the subject and grade level.
+- Learning Objective: Describe the learning objective as {Learning_Objective}, ensuring it aligns with Common Core standards.
+- Group Size: Set the number of students in each group as {Group_Size}.
+
+Negative Prompt:
+Avoid tasks or language that are overly complex, irrelevant to {Grade_Level} or the specified {Subject}, or do not align with the standards of the Common Core. The activities should be appropriately challenging without causing confusion or unnecessary task overload for students at {Grade_Level}.
+
+Instructions:
+Create a group work activity with the following features:
+1. Assign clear roles for each group member. For example, a {Grade_Level} activity on {Topic} might include roles like "Researcher," "Recorder," "Presenter," and "Illustrator."
+2. Outline specific tasks for each role, aligned with the {Learning_Objective}.
+3. Emphasize collaboration, open communication, and equal contribution among group members.
+4. Ensure the group work activity is manageable within class time and allows for regular group check-ins to review progress.
+
+The output should be formatted in JSON, with each role and its tasks clearly defined in a structured manner. Include keys for 'roles' and 'tasks', where 'roles' is a list of roles and 'tasks' is a corresponding list of tasks for each role.
+Example:
+Generated Group Work Plan:
+{
+    "subject": "Health",
+    "grade_level": 6,
+    "topic": "Exercise and Its Benefits",
+    "learning_objective": "Students will understand the importance of regular exercise and how it contributes to overall health and well-being, aligning with Common Core standards for collaborative discussion and presentation skills.",
+    "group_size": 7,
+    "roles": [
+        "Researcher",
+        "Recorder",
+        "Presenter",
+        "Illustrator",
+        "Timekeeper",
+        "Discussion Leader",
+        "Fact-Checker"
+    ],
+    "tasks": [
+        {
+            "role": "Researcher",
+            "task": "Gather information on different types of exercises (aerobic, strength, flexibility) and their health benefits. Prepare a summary to share with the group."
+        },
+        {
+            "role": "Recorder",
+            "task": "Take notes during group discussions and document key points from the research. Create an outline for the group's presentation."
+        },
+        {
+            "role": "Presenter",
+            "task": "Prepare to present the group's findings to the class. Practice speaking clearly and engagingly to convey the importance of exercise."
+        },
+        {
+            "role": "Illustrator",
+            "task": "Create visuals (posters, drawings, or digital slides) that represent the types of exercises and their benefits. Ensure visuals are colorful and informative."
+        },
+        {
+            "role": "Timekeeper",
+            "task": "Keep track of time during group discussions and activities. Remind the group to stay on schedule to complete the project in the allotted class time."
+        },
+        {
+            "role": "Discussion Leader",
+            "task": "Facilitate group discussions, ensuring that everyone has a chance to speak and contribute. Encourage collaboration and support among group members."
+        },
+        {
+            "role": "Fact-Checker",
+            "task": "Verify the accuracy of the information gathered by the Researcher. Ensure all facts presented are correct and relevant to the topic of exercise."
+        }
+    ],
+    "collaboration_emphasis": "Encourage open communication by having regular check-ins where each member shares their progress and any challenges they face. Promote equal contribution by assigning tasks that require input from all members."
+}
+"""
