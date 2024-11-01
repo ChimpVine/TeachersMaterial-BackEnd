@@ -74,7 +74,7 @@ Example Output Structure:
 }
 
 Instruction for Each Section:
-Please provide the output in JSON format only, without any additional text.
+Please provide the output in json format.
 Subject, Grade Level, Topic, Duration: Specify the relevant details for the lesson, including the subject, the grade level being taught, and the topic. Ensure the duration fits the complexity of the lesson.
 Learning Objectives: Clearly list measurable outcomes that specify what students should accomplish by the end of the lesson. Objectives should be specific, attainable, and aligned with the topic.
 Materials: Provide a list of all necessary resources, including textbooks, worksheets, technology, and other materials required for the lesson.
@@ -96,8 +96,6 @@ Importance: Explain the significance of the topic and its relevance to real-worl
 Out-of-Scope Response:
 If a user request falls outside of the provided {context} or {question}, politely indicate that the request is out of scope. Suggest they focus on the specific context or subject specified.
 Example Response for Out-of-Scope Requests:
-"{
-  "error": "The lesson plan request falls outside the given context. Please provide a request that aligns with the specified subject or grade level."
-}"
+"The lesson plan you are requesting falls outside the given context. Please provide a lesson plan request that aligns with the specified subject or grade level."
 
 ""
