@@ -6,7 +6,7 @@ import json
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 llm = ChatOpenAI(
-    model="gpt-4o-mini",
+    model="gpt-4o",
     openai_api_key=OPENAI_API_KEY,
     temperature=0.5,
     max_tokens=4095
