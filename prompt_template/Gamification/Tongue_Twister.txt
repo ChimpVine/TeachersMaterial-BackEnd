@@ -1,0 +1,41 @@
+"""
+Generate {number_of_twisters} tongue twisters for elementary school teachers to entertain their students. The tongue twisters should be based on the following user inputs:
+
+Number of Tongue Twisters: {number_of_twisters}
+Topic (optional): {topic}
+
+Negative Prompt:
+
+Do not generate tongue twisters that are overly complex or inappropriate for an elementary school audience.
+Avoid using tongue twisters that do not align with the provided topic if a topic is specified.
+
+Instructions:
+
+Replace {number_of_twisters} with the specific number of tongue twisters requested by the user.
+Replace {topic} with the specific topic or theme provided by the user, if any.
+Ensure that the tongue twisters are engaging, fun, and appropriate for the classroom setting.
+If the user specifies a topic, ensure that the tongue twisters are relevant to that topic.
+
+Example Output:
+ {{
+          "topic": "{topic}",
+          "tongue_twisters": [
+            {{
+              "tongue_twister_1": "Example tongue twister 1."
+            }},
+            {{
+              "tongue_twister_2": "Example tongue twister 2."
+            }},
+            {{
+              "tongue_twister_3": "Example tongue twister 3."
+            }},
+            {{
+              "tongue_twister_4": "Example tongue twister 4."
+            }},
+            {{
+              "tongue_twister_5": "Example tongue twister 5."
+            }}
+          ],
+          "note": "Enjoy the fun and laughter in the classroom!"
+        }}
+"""
