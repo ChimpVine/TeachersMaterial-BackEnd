@@ -125,15 +125,15 @@ def load_tools_from_json(file_path):
     except json.JSONDecodeError:
         print("Error: Failed to decode JSON.")
         return []
-
+# Load tools from JSON file
+tools = load_tools_from_json('tools.json')
 # Function to get tool by name
 def get_tool_by_name(tools, tool_name):
     # Use case-insensitive search and handle different key casings
     return next((tool for tool in tools if tool.get('tool_name', '').lower() == tool_name.lower() or 
                  tool.get('Tool_name', '').lower() == tool_name.lower()), None)
 
-# Load tools from JSON file
-tools = load_tools_from_json('tools.json')
+
 
 def extract_text_from_pdf(pdf_path):
     # Open the PDF file and extract text
