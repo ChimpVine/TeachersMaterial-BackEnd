@@ -111,7 +111,8 @@ def index():
 UPLOAD_FOLDER = tempfile.gettempdir()
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-
+# Load tools from JSON file
+tools = load_tools_from_json('Tools.json')
 import json
 
 # Load tools from the JSON file
@@ -126,7 +127,7 @@ def load_tools_from_json(file_path):
         print("Error: Failed to decode JSON.")
         return []
 # Load tools from JSON file
-tools = load_tools_from_json('tools.json')
+tools = load_tools_from_json('Tools.json')
 # Function to get tool by name
 def get_tool_by_name(tools, tool_name):
     # Use case-insensitive search and handle different key casings
