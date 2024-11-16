@@ -111,8 +111,6 @@ def index():
 UPLOAD_FOLDER = tempfile.gettempdir()
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Load tools from JSON file
-tools = load_tools_from_json('Tools.json')
 import json
 
 # Load tools from the JSON file
