@@ -1200,12 +1200,6 @@ def google_sheet():
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
 
-
-
-
-
-
-
 @app.route('/generate-vocab-list', methods=['POST'])
 def generate_vocab_list():
     data = request.form or request.json
@@ -1227,6 +1221,7 @@ def generate_vocab_list():
     topic = data.get('topic')
     num_words = data.get('num_words')
     difficulty_level = data.get('difficulty_level')
+    print(grade_level,subject,topic,num_words, difficulty_level)
 
     # Validating required fields
     if not all([grade_level, subject, topic, num_words, difficulty_level]):
@@ -1264,8 +1259,6 @@ def generate_vocab_list():
     except Exception as e:
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
-
-
 
 @app.route('/generate-tongue-twisters', methods=['POST'])
 def generate_tongue_twisters():

@@ -48,7 +48,7 @@ def vocabulary_generation(grade_level, subject, topic, num_words, difficulty_lev
         return "Error: Unable to load prompt template."
 
     def generate_vocab_list(grade_level, subject, topic, num_words, difficulty_level):
-        prompt = prompt_template.replace("{grade_level}", grade_level).replace("{subject}", subject).replace("{topic}", topic).replace("{num_words}", num_words).replace("{difficulty_level}", difficulty_level)
+        prompt = prompt_template.replace("{grade_level}", str(grade_level)).replace("{subject}", str(subject)).replace("{topic}",str(topic)).replace("{num_words}", str(num_words)).replace("{difficulty_level}", str(difficulty_level))
         try:
             response = llm.predict(prompt)
             return response

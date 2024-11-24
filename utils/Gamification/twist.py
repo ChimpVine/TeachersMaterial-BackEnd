@@ -48,7 +48,7 @@ def Tongue_Twister(topic, number_of_twisters):
         return "Error: Unable to load prompt template."
 
     def prompt(topic, number_of_twisters):
-        prompt = prompt_template.replace("{topic}", topic).replace("{number_of_twisters}", number_of_twisters)
+        prompt = prompt_template.replace("{topic}", str(topic)).replace("{number_of_twisters}", str(number_of_twisters))
         try:
             response = llm.predict(prompt)
             return response
