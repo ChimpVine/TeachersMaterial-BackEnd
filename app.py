@@ -1,7 +1,6 @@
 import os
 import tempfile
-from functools import wraps
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session, flash
+from flask import Flask, request, jsonify, render_template
 import requests
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -92,9 +91,6 @@ from urllib.parse import urlparse
 # Load environment variables from .env file
 load_dotenv()
 
-# Get the TEST_TOKEN from environment variables
-TEST_TOKEN = os.getenv('TEST_TOKEN2')
-
 # Initialize Flask application
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'  # Required for session management
@@ -110,7 +106,6 @@ def index():
 # Ensure the temporary upload directory exists
 UPLOAD_FOLDER = tempfile.gettempdir()
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-# Import
 
 import json
 
@@ -125,15 +120,15 @@ def load_tools_from_json(file_path):
     except json.JSONDecodeError:
         print("Error: Failed to decode JSON.")
         return []
-# Load tools from JSON file
-tools = load_tools_from_json('Tools.json')
+
 # Function to get tool by name
 def get_tool_by_name(tools, tool_name):
     # Use case-insensitive search and handle different key casings
     return next((tool for tool in tools if tool.get('tool_name', '').lower() == tool_name.lower() or 
                  tool.get('Tool_name', '').lower() == tool_name.lower()), None)
 
-
+# Load tools from JSON file
+tools = load_tools_from_json('Tools.json')
 
 def extract_text_from_pdf(pdf_path):
     # Open the PDF file and extract text
@@ -217,8 +212,12 @@ def api_generate_lesson_plan():
             return lesson_plan
 
         else:
-            # Return the specific message from WordPress API
-            return jsonify({"error": token_verification.get('message', 'Token verification failed')}), 403
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
     except Exception as e:
         print(f"Error processing request: {e}")
@@ -290,8 +289,12 @@ def api_generate_workbook():
             return workbook
 
         else:
-            # Return the specific message from WordPress API
-            return jsonify({"error": token_verification.get('message', 'Token verification failed')}), 403
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
     except Exception as e:
         print(f"Error processing request: {e}")
@@ -357,59 +360,18 @@ def generate_quiz():
             return quiz
 
         else:
-            # Return the specific message from WordPress API
-            return jsonify({"error": token_verification.get('message', 'Token verification failed')}), 403
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
     except Exception as e:
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-# @app.route('/generate', methods=['POST', 'GET'])
-# def generate():
-#     subject = request.form.get('subject')
-#     grade = request.form.get('grade')
-#     number_of_questions = request.form.get('number')
-#     question_type = request.form.get('question-type')
-#     sub_question_type = request.form.get('sub-question-type')
-#     topic = request.form.get('textarea')
-#     file = request.files.get('pdf_file')
-    
-#     pdf_text = None
-
-#     # Save the uploaded file temporarily
-#     if file:
-#         temp_dir = tempfile.gettempdir()
-#         temp_path = os.path.join(temp_dir, file.filename)
-#         file.save(temp_path)
-#         pdf_text = extract_text_from_pdf(temp_path)
-#         os.remove(temp_path)  # Remove the file after processing
-
-#     # Process input based on question type and sub-question type
-#     if question_type == "MCQ" and sub_question_type == "MCQ_Single":
-#         return generate_mcq_single(subject, grade, number_of_questions, topic, pdf_text)
-#     elif question_type == "MCQ" and sub_question_type == "MCQ_Multiple":
-#         return generate_mcq_multiple(subject, grade, number_of_questions, topic, pdf_text)
-#     elif question_type == "TF_Simple":
-#         return generate_tf_simple(subject, grade, number_of_questions, topic, pdf_text)
-#     elif question_type == "Fill-in-the-Blanks" and sub_question_type == "FIB_Single":
-#         return generate_fib_single(subject, grade, number_of_questions, topic, pdf_text)
-#     elif question_type == "Fill-in-the-Blanks" and sub_question_type == "FIB_Multiple":
-#         return generate_fib_multiple(subject, grade, number_of_questions, topic, pdf_text)
-#     elif question_type == "Match_Term_Def":
-#         return generate_match_term_def(subject, grade, number_of_questions, topic, pdf_text)
-#     elif question_type == "Q&A" and sub_question_type == "Short_Answer_Explain":
-#         return generate_short_answer_explain(subject, grade, number_of_questions, topic, pdf_text)
-#     elif question_type == "Q&A" and sub_question_type == "Short_Answer_List":
-#         return generate_short_answer_list(subject, grade, number_of_questions, topic, pdf_text)
-#     elif question_type == "Q&A" and sub_question_type == "Long_Answer_Explain":
-#         return generate_long_answer(subject, grade, number_of_questions, topic, pdf_text)
-#     elif question_type == "Sequencing":
-#         return generate_seq_events(subject, grade, number_of_questions, topic, pdf_text)
-#     elif question_type == "Problem_Solving":
-#         return generate_ps_math(subject, grade, number_of_questions, topic, pdf_text)
-#     else:
-#         return "Question type not supported."
 @app.route('/generate', methods=['POST', 'GET'])
 def generate():
     # Extract headers
@@ -502,67 +464,12 @@ def generate():
             return response, 200
 
         else:
-            # Return the specific message from WordPress API if token verification fails
-            return jsonify({"error": token_verification.get('message', 'Token verification failed')}), 403
-
-    except Exception as e:
-        print(f"Error processing request: {e}")
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/generate-tongue-twisters', methods=['POST'])
-def generate_tongue_twisters():
-    # Extract headers
-    auth_token = request.headers.get('Authorization')
-    site_url = request.headers.get('X-Site-Url')
-    print(site_url, auth_token)
-
-    # Check if the required headers are present
-    if not auth_token:
-        return jsonify({"error": "Missing 'Authorization' header"}), 400
-    if not site_url:
-        return jsonify({"error": "Missing 'X-Site-Url' header"}), 400
-
-    # Extract form data
-    # Extract form data and file (supports both form and JSON inputs)
-    data = request.form or request.json
-    topic = data.get('topic')
-    number_of_twisters = data.get('number_of_twisters')
-
-    # Validate required fields
-    if not topic or not number_of_twisters:
-        return jsonify({"error": "Please provide both 'topic' and 'number_of_twisters'"}), 400
-    # Get the "Lesson Planner" tool details
-    tool = get_tool_by_name(tools, "Tongue Twister")
-    if not tool:
-        return jsonify({"error": "Tool not found"}), 500
-
-    Tool_ID = tool.get('Tool_ID')
-    Token = tool.get('Token')
-    print(f"Tool ID: {Tool_ID}, Token Index: {Token}")
-    # Verify tokens before proceeding
-    try:
-        token_verification = verify_token(auth_token, site_url,Tool_ID,Token)
-
-        # Check if the token verification was successful
-        if token_verification.get('status') == 'success':
-            # Generate tongue twisters
-            result = Tongue_Twister(topic, number_of_twisters)
-
-            # Prepare the response
-            response = jsonify(result)
-            response.status_code = 200
-
-            # Call use_token() only if the status code is 200
-            if response.status_code == 200:
-                use_token(auth_token, site_url,Tool_ID,Token)
-
-            # Return the result
-            return result
-
-        else:
-            # Return the specific message from WordPress API
-            return jsonify({"error": token_verification.get('message', 'Token verification failed')}), 403
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
     except Exception as e:
         print(f"Error processing request: {e}")
@@ -651,8 +558,12 @@ def Word_puzzle_API():
             return result
 
         else:
-            # Return the specific message from WordPress API
-            return jsonify({"error": token_verification.get('message', 'Token verification failed')}), 403
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
     except Exception as e:
         print(f"Error processing request: {e}")
@@ -711,42 +622,16 @@ def Group_work_API():
             return result
 
         else:
-            # Return the specific message from WordPress API
-            return jsonify({"error": token_verification.get('message', 'Token verification failed')}), 403
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
     except Exception as e:
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
-
-# @app.route('/YT_summarize', methods=['POST'])
-# def summarize():
-#     data = request.json
-#     video_url = data.get("video_url")
-#     print(video_url)
-
-#     if not video_url:
-#         return jsonify({"error": "No video URL provided"}), 400
-
-#     try:
-#         result = YT_Summarizer(video_url)
-        
-#         # Check if the result contains "No transcript available."
-#         if result == "No transcript available.":
-#             return jsonify({"error": "Subtitle not available for this video."}), 400
-        
-#         # Check if the result contains an error message
-#         if isinstance(result, str) and "Error" in result:
-#             return jsonify({"error": result}), 500
-        
-#         print(result)
-#         return result
-
-#     except Exception as e:
-#         # Log the exception for debugging
-#         print(f"Exception occurred: {e}")
-#         return jsonify({"error": f"An error occurred: {str(e)}"}),500
-
-
 
 @app.route('/YT_summarize', methods=['POST'])
 def summarize():
@@ -874,8 +759,12 @@ def Social_stories_API():
             return result
 
         else:
-            # Return the specific message from WordPress API
-            return jsonify({"error": token_verification.get('message', 'Token verification failed')}), 403
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
     except Exception as e:
         print(f"Error processing request: {e}")
@@ -898,25 +787,6 @@ def generate_fun_math_API():
     except Exception as e:
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
-
-
-# @app.route('/slide_one', methods=['POST'])
-# def slide_one_API():
-#     data = request.get_json() or request.form
-#     grade = data.get('grade')
-#     topic = data.get('topic')
-#     learning_objectives = data.get('learning_objectives')
-#     number_of_slides = data.get('number_of_slides')
-
-#     if not all([grade, topic, learning_objectives, number_of_slides]):
-#         return jsonify({'error': 'Missing required fields'}), 400
-
-#     response = slide_one.first_slide(grade, topic, learning_objectives, number_of_slides)
-
-#     if response is None:
-#         return jsonify({'error': 'No valid response from first_slide'}), 500
-
-#     return response, 200
 
 @app.route('/slide_one', methods=['POST'])
 def slide_one_API():
@@ -953,25 +823,29 @@ def slide_one_API():
     try:
         # Verify token before generating slides
         token_verification = verify_token(auth_token, site_url,Tool_ID,Token)
-        if token_verification.get('status') != 'success':
-            return jsonify({"error": token_verification.get('message', 'Token verification failed')}), 403
+        if token_verification.get('status') == 'success':
+            # Generate slides using the slide_one function
+            response = slide_one.first_slide(grade, topic, learning_objectives, number_of_slides)
 
-        # Generate slides using the slide_one function
-        response = slide_one.first_slide(grade, topic, learning_objectives, number_of_slides)
+            # Check if the response is valid
+            if response is None:
+                return jsonify({'error': 'No valid response from first_slide'}), 500
 
-        # Check if the response is valid
-        if response is None:
-            return jsonify({'error': 'No valid response from first_slide'}), 500
+            # Prepare the successful response
+            result = jsonify(response)
+            result.status_code = 200
 
-        # Prepare the successful response
-        result = jsonify(response)
-        result.status_code = 200
-
-        # Call use_token() only if the status code is 200
-        if result.status_code == 200:
-            use_token(auth_token, site_url,Tool_ID,Token)
-
-        return response
+            # Call use_token() only if the status code is 200
+            if result.status_code == 200:
+                use_token(auth_token, site_url,Tool_ID,Token)
+            return response
+        else:
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
     except Exception as e:
         # Log the exception for debugging
@@ -1046,7 +920,12 @@ def text_summarizer_API():
 
             return response
         else:
-            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), 403
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
     except Exception as e:
         print(f"Error processing request: {e}")
@@ -1122,7 +1001,12 @@ def generate_sel_plan_API():
 
             return response
         else:
-            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), 403
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
     except Exception as e:
         print(f"Error processing request: {e}")
@@ -1184,7 +1068,12 @@ def make_the_word_API():
 
                 return response
             else:
-                return jsonify({'error': token_verification.get('message', 'Token verification failed')}), 403
+                # Print the verification response and return its status and message
+                print(token_verification)
+                # Extract status and message from token_verification
+                status_code = token_verification.get('code', 400)  # Default to 400 if not present
+                print(status_code)
+                return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
         except Exception as e:
             print(f"Error processing request: {e}")
@@ -1270,51 +1159,6 @@ def mystery_game_API():
         return response, 200
 
 
-# # API endpoint to receive data from form and update the Google Sheet
-# @app.route("/google_sheet", methods=['POST'])
-# def google_sheet():
-#     # Retrieve data from form or JSON request
-#     data = request.get_json() or request.form
-#     full_name = data.get('full_name')
-#     email = data.get('email')
-#     country = data.get('country')
-#     profession = data.get('profession')
-#     organization = data.get('organization')
-#     tools_categories = data.get('tools_categories')
-#     description = data.get('description')
-#     captcha_response = data.get('recaptchaToken')
-#     print(captcha_response)
-#     print(full_name, email, country, profession, organization, tools_categories, description)
-
-    
-#     # Get sheet_id and recaptcha secret from environment variables
-#     sheet_id = os.getenv('SHEET_ID')
-#     recaptcha_secret = os.getenv('RECAPTCHA_SECRET_KEY2')
-
-#     print(recaptcha_secret)
-
-#     # Check for required parameters
-#     if not all([full_name, email, country, profession, organization, tools_categories, description, sheet_id, captcha_response]):
-#         return jsonify({"error": "Please provide all required fields."}), 400
-
-#     # Verify CAPTCHA with Google's reCAPTCHA API
-#     captcha_verify_url = 'https://www.google.com/recaptcha/api/siteverify'
-#     captcha_verify_payload = {'secret': recaptcha_secret, 'response': captcha_response}
-#     captcha_verify_response = requests.post(captcha_verify_url, data=captcha_verify_payload)
-#     captcha_verify_result = captcha_verify_response.json()
-#     print(captcha_verify_result)
-
-#     if not captcha_verify_result.get('success'):
-#         return jsonify({"error": "Invalid CAPTCHA. Please try again."}), 400
-
-#     # Try to update the Google Sheet and return the result
-#     try:
-#         result = update_google_sheet(full_name, email, country, profession, organization, tools_categories, description, sheet_id)
-#         return result
-#     except Exception as e:
-#         print(f"Error processing request: {e}")
-#         return jsonify({"error": str(e)}), 500
-
 # API endpoint to receive data from form and update the Google Sheet
 @app.route("/google_sheet", methods=['POST'])
 def google_sheet():
@@ -1355,6 +1199,10 @@ def google_sheet():
     except Exception as e:
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
+
+
+
+
 
 
 
@@ -1406,13 +1254,81 @@ def generate_vocab_list():
             use_token(auth_token, site_url,Tool_ID,Token)
             return result
         else:
-            # Return the specific message from WordPress API
-            return jsonify({"error": token_verification.get('message', 'Token verification failed')}), 403
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
 
     except Exception as e:
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
-    
+
+
+
+@app.route('/generate-tongue-twisters', methods=['POST'])
+def generate_tongue_twisters():
+    # Extract headers
+    auth_token = request.headers.get('Authorization')
+    site_url = request.headers.get('X-Site-Url')
+    print(site_url, auth_token)
+
+    # Check if the required headers are present
+    if not auth_token:
+        return jsonify({"error": "Missing 'Authorization' header"}), 400
+    if not site_url:
+        return jsonify({"error": "Missing 'X-Site-Url' header"}), 400
+
+    # Extract form data
+    # Extract form data and file (supports both form and JSON inputs)
+    data = request.form or request.json
+    topic = data.get('topic')
+    number_of_twisters = data.get('number_of_twisters')
+
+    # Validate required fields
+    if not topic or not number_of_twisters:
+        return jsonify({"error": "Please provide both 'topic' and 'number_of_twisters'"}), 400
+    # Get the "Lesson Planner" tool details
+    tool = get_tool_by_name(tools, "Tongue Twister")
+    if not tool:
+        return jsonify({"error": "Tool not found"}), 500
+
+    Tool_ID = tool.get('Tool_ID')
+    Token = tool.get('Token')
+    print(f"Tool ID: {Tool_ID}, Token Index: {Token}")
+    # Verify tokens before proceeding
+    try:
+        token_verification = verify_token(auth_token, site_url,Tool_ID,Token)
+
+        # Check if the token verification was successful
+        if token_verification.get('status') == 'success':
+            # Generate tongue twisters
+            result = Tongue_Twister(topic, number_of_twisters)
+
+            # Prepare the response
+            response = jsonify(result)
+            response.status_code = 200
+
+            # Call use_token() only if the status code is 200
+            if response.status_code == 200:
+                use_token(auth_token, site_url,Tool_ID,Token)
+
+            # Return the result
+            return result
+
+        else:
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
+
+    except Exception as e:
+        print(f"Error processing request: {e}")
+        return jsonify({"error": str(e)}), 500
+   
 
 def api_request(auth_token, site_url, endpoint_suffix, Tool_ID,Token):
     """
@@ -1451,14 +1367,13 @@ def api_request(auth_token, site_url, endpoint_suffix, Tool_ID,Token):
         if response.status == 200 and response_json.get("success"):
             return {"status": "success", "message": response_json.get("message")}
         elif response.status in [400, 401, 403]:
-            error_messages = {
-                400: "Bad Request - Check input parameters",
-                401: "Unauthorized - Invalid token",
-                403: "Forbidden - Check token permissions or IP restrictions"
+            return {
+                "status": "error",
+                "message": response_json.get("message", "Authentication or permission error"),
+                "code": response.status
             }
-            return {"status": "error", "message": error_messages[response.status]}
         else:
-            return {"status": "error", "message": f"Unexpected status code: {response.status}"}
+            return {"status": "error", "message": f"Unexpected Error. Status Code: {response.status}"}
     except Exception as e:
         print(f"Error calling WordPress API: {e}")
         return {"status": "error", "message": "Failed to connect to WordPress API"}
