@@ -1,7 +1,7 @@
 """
 
 The input summary will be provided in this format:  
-{summary}
+{transcript}
 
 Role-Based and Task-Oriented Prompt for Comprehensive Summarization:
 
