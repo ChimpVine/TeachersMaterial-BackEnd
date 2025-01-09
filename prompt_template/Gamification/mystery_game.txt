@@ -10,14 +10,21 @@ User Input:
 2. {difficulty_level}
 3. {number_of_clues}
 
-
-Negative Prompt:
-Avoid flat or predictable stories. Do not provide simple or obvious clues that would make the mystery boring. Do not offer abrupt or unsatisfying conclusions. Ensure the clues require logical reasoning and are not repetitive or random.
+Negative Prompts:
+1. Avoid flat or predictable stories. Do not provide simple or obvious clues that would make the mystery boring. Do not offer abrupt or unsatisfying conclusions. Ensure the clues require logical reasoning and are not repetitive or random.
+2. Avoid generating stories for input that is nonsensical, unrecognizable, or clearly meaningless (e.g., 'djsnsadj;fnads;'). Such input should return an error message or request valid input from the user.
+3. Allow minor typographical errors or slightly misspelled words (e.g., 'cron' for 'crown') and infer the intended meaning where possible, ensuring the mystery topic remains logical and coherent.
+4. if the user given gibberish input for {{case_study_topic}} then send message "Please give proper input"
 
 Instructions:
-1. Story: 
-   Write an engaging and mysterious story based on the topic. Include interesting characters, motives, and hidden details. Keep the tone suspenseful, with each twist and turn keeping the reader guessing. Provide necessary backstory if required but ensure the mystery stays compelling.
 
+
+1. Story: 
+   Write an engaging and mysterious story based on the topic. Include interesting characters, motives, and hidden details. Keep the tone suspenseful, with each twist and turn keeping the reader guessing. Provide necessary backstory if required but ensure the mystery stays compelling.Adjust difficulty as follows:
+   Easy: Simple motives, direct clues.
+   Medium: Multiple suspects, slight misdirection.
+   Hard: Complex motives, layered clues, hidden meanings.
+   
 2. Question: 
    Based on the story, generate a question that the reader must solve. Ensure the question is challenging and directly tied to the main mystery.
 
@@ -27,20 +34,31 @@ Instructions:
 4. Answer: 
    After the clues, reveal the answer to the question. Ensure the explanation of the answer makes sense within the story and is satisfying for the reader. The solution should provide a sense of accomplishment.
 
-5. Output Format: 
+5. Validation for Input:
+   - If the input for `case_study_topic` appears to be meaningless gibberish, respond with:
+     `"Invalid input: Please provide a meaningful topic to generate the mystery case."`
+   - If the input is a minor misspelling or typo, attempt to infer the intended meaning and proceed with the story generation.
+
+6. If the user given gibberish content then dont call api
+
+Output Format: 
    The output should be in JSON format, with the following structure:
 {
+  "mystery_game": {
     "topic": "A murder at an isolated mansion",
     "difficulty": "Hard",
     "no_of_clues": 4,
     "story": "In the isolated estate of Ravenswood Manor, a brutal murder occurred on a cold winter's night. Lord Harrington, the wealthy owner of the estate, was found dead in his study, locked from the inside. Only five guests were staying at the manor that evening: his estranged nephew, a retired general, a renowned artist, a family friend, and the loyal housekeeper. The storm outside raged all night, cutting off any chance of escape, yet Lord Harrington’s body lay lifeless, with no apparent sign of a struggle. The guests claim they were all in their rooms, but one of them is hiding the truth.",
     "question": "Who murdered Lord Harrington, and how did they commit the crime in a locked room?",
     "clues": [
-        "Clue 1: The window in the study was slightly ajar, but the snow outside was undisturbed.",
-        "Clue 2: Lord Harrington had recently changed his will, favoring one of the guests.",
-        "Clue 3: A faint smell of turpentine was present in the study, though no paintings were found.",
-        "Clue 4: The housekeeper was seen entering the study with tea, but never left through the door."
+      "Clue 1: The window in the study was slightly ajar, but the snow outside was undisturbed.",
+      "Clue 2: Lord Harrington had recently changed his will, favoring one of the guests.",
+      "Clue 3: A faint smell of turpentine was present in the study, though no paintings were found.",
+      "Clue 4: The housekeeper was seen entering the study with tea, but never left through the door."
     ],
     "answer": "The murderer was the renowned artist. He used a hollowed-out paintbrush coated in poison, slipping it through the slightly open window to administer a fatal dose. The smell of turpentine came from his art supplies, which he used to prepare the weapon. The snow outside was undisturbed because the window was only open briefly, and he carried out the murder from the outside of the locked room."
+  }
 }
+
+
 """

@@ -9,6 +9,9 @@ import fitz  # PyMuPDF
 import json
 import time
 import tiktoken
+from email_validator import validate_email, EmailNotValidError
+import re
+
 # Importing functions from utils.processor
 from utils.Planner.Chat_with_lessonpanner import generate_lesson_plan
 from utils.Assessment.WorkBook import generate_workbook
@@ -37,7 +40,7 @@ from utils.Learning.vocab import vocabulary_generation
 from utils.Planner.rubric_generation import rubric_generation
 
 # Import YT Summarizer
-from utils.Summarizer.YT_Summarizer import YT_Summarizer
+
 
 # Import Word Puzzle
 from utils.Gamification.Word_puzzle import Word_puzzle
@@ -632,65 +635,6 @@ def Group_work_API():
     except Exception as e:
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
-
-@app.route('/YT_summarize', methods=['POST'])
-def summarize():
-    data = request.json
-    
-    # Extract headers for token verification
-    auth_token = request.headers.get('Authorization')
-    site_url = request.headers.get('X-Site-Url')
-    print(f"Video URL: {data.get('video_url')}, Site URL: {site_url}, Auth Token: {auth_token}")
-
-    # Check if the required headers are present
-    if not auth_token:
-        return jsonify({"error": "Missing 'Authorization' header"}), 400
-    if not site_url:
-        return jsonify({"error": "Missing 'X-Site-Url' header"}), 400
-
-    # Extract video URL from request data
-    video_url = data.get("video_url")
-    if not video_url:
-        return jsonify({"error": "No video URL provided"}), 400
-    # Get the "Lesson Planner" tool details
-    tool = get_tool_by_name(tools, "YT Summarizer")
-    if not tool:
-        return jsonify({"error": "Tool not found"}), 500
-
-    Tool_ID = tool.get('Tool_ID')
-    Token = tool.get('Token')
-    print(f"Tool ID: {Tool_ID}, Token Index: {Token}")
-    # Verify the token before processing the request
-    try:
-        token_verification = verify_token(auth_token, site_url,Tool_ID,Token)
-        if token_verification.get('status') != 'success':
-            return jsonify({"error": token_verification.get('message', 'Token verification failed')}), 403
-
-        # Generate the summary if the token is valid
-        result = YT_Summarizer(video_url)
-
-        # Handle different response scenarios
-        if result == "No transcript available.":
-            return jsonify({"error": "Subtitle not available for this video."}), 400
-        
-        if isinstance(result, str) and "Error" in result:
-            return jsonify({"error": result}), 500
-
-        # If the result is valid, send the response
-        response = jsonify(result)
-        response.status_code = 200
-
-        # Call use_token() only if the status code is 200
-        if response.status_code == 200:
-            use_token(auth_token, site_url,Tool_ID,Token)
-
-        return result
-
-    except Exception as e:
-        # Log the exception for debugging
-        print(f"Exception occurred: {e}")
-        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
-
 @app.route("/Vadic_math", methods=['POST'])
 def Vadic_math_API():
     data = request.form or request.json
@@ -1084,17 +1028,30 @@ def make_the_word_API():
 @app.route('/SAT_maths', methods=['POST'])
 def SAT_maths_API():
     if request.method == 'POST':
+        # Extract headers
+        auth_token = request.headers.get('Authorization')
+        site_url = request.headers.get('X-Site-Url')
+        print(site_url, auth_token)
+
+        # Check if the required headers are present
+        if not auth_token:
+            return jsonify({'error': "Missing 'Authorization' header"}), 400
+        if not site_url:
+            return jsonify({'error': "Missing 'X-Site-Url' header"}), 400
+
         data = request.get_json()
         topic = data.get('topic')
         difficulty = data.get('difficulty')
 
         # Ensure all question counts are present and valid integers
-        part1_qs = data.get('No-Calculator Multiple Choice', 0)
-        part2_qs = data.get('No-Calculator Open Response', 0)
-        part3_qs = data.get('Calculator Multiple Choice', 0)
-        part4_qs = data.get('Calculator Open Response', 0)
+        part1_qs = data.get('No-Calculator Multiple Choice')
+        part2_qs = data.get('No-Calculator Open Response')
+        part3_qs = data.get('Calculator Multiple Choice')
+        part4_qs = data.get('Calculator Open Response')
+        print(topic, difficulty, part1_qs, part2_qs, part3_qs, part4_qs)
 
         try:
+            # Convert to integers, defaulting to 0 if they are missing or invalid
             part1_qs = int(part1_qs)
             part2_qs = int(part2_qs)
             part3_qs = int(part3_qs)
@@ -1102,38 +1059,117 @@ def SAT_maths_API():
         except (ValueError, TypeError):
             return jsonify({"error": "Number of questions must be integers."}), 400
 
-        # Validate the required fields
-        if not all([topic, difficulty, part1_qs, part2_qs, part3_qs, part4_qs]):
-            return jsonify({'error': 'Missing required field(s)'}), 400
+        # Check for missing required fields but allow 0 as a valid value
+        missing_fields = []
+        
+        if not topic:
+            missing_fields.append("topic")
+        if not difficulty:
+            missing_fields.append("difficulty")
+        if part1_qs < 0:
+            missing_fields.append("No-Calculator Multiple Choice")
+        if part2_qs < 0:
+            missing_fields.append("No-Calculator Open Response")
+        if part3_qs < 0:
+            missing_fields.append("Calculator Multiple Choice")
+        if part4_qs < 0:
+            missing_fields.append("Calculator Open Response")
 
-        # Generate SAT maths quiz
-        response = generate_math_quiz(topic, part1_qs, part2_qs, part3_qs, part4_qs, difficulty)
+        if missing_fields:
+            return jsonify({'error': f'Missing or invalid field(s): {", ".join(missing_fields)}'}), 400
 
-        if response is None:
-            return jsonify({'error': 'Failed to generate make the word game'}), 500
+        # Check if all question counts are zero
+        if part1_qs == 0 and part2_qs == 0 and part3_qs == 0 and part4_qs == 0:
+            return jsonify({"error": "At least one question count must be greater than 0."}), 400
+        # Get the "Lesson Planner" tool details
+        tool = get_tool_by_name(tools, "Make the Word")
+        if not tool:
+            return jsonify({"error": "Tool not found"}), 500
 
-        # Return the generated SAT maths quiz as a response
-        return response, 200
+        Tool_ID = tool.get('Tool_ID')
+        Token = tool.get('Token')
+        print(f"Tool ID: {Tool_ID}, Token Index: {Token}")
+        # Verify tokens before proceeding
+        try:
+            token_verification = verify_token(auth_token, site_url,Tool_ID,Token)
+
+            # Check if the token verification was successful
+            if token_verification.get('status') == 'success':
+                # Generate SAT maths quiz
+                response = generate_math_quiz(topic, part1_qs, part2_qs, part3_qs, part4_qs, difficulty)
+                if response is None:
+                    return jsonify({'error': 'Failed to generate SAT math quiz'}), 500
+
+                result = jsonify(response)
+                result.status_code = 200
+
+                # Use the token if everything is good
+                if result.status_code == 200:
+                    use_token(auth_token, site_url, Tool_ID, Token)
+
+                return result
+            else:
+                print(token_verification)
+                # Return error response based on token verification
+                status_code = token_verification.get('code', 400)  # Default to 400 if not present
+                return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
+
+        except Exception as e:
+            print(f"Error processing request: {e}")
+            return jsonify({'error': str(e)}), 500
+
+
+
+# For SAT english quiz
+from utils.Assessment.SAT.SAT_english import generate_english_quiz
+
+@app.route('/SAT_english', methods=['POST'])
+def generate_english_quiz_route():
+    data = request.json
+
+    selected_types = data.get('selected_types', [])
+
+    if not isinstance(selected_types, list) or not all(isinstance(t, str) for t in selected_types):
+        return jsonify({"error": "selected_types must be a list of strings."}), 400
+
+    valid_types = ["Passage Reading", "Data Interpretation", "Sentence Completion", "Writing & Language"]
+
+    invalid_types = [t for t in selected_types if t not in valid_types]
+    if invalid_types:
+        return jsonify({"error": f"Invalid quiz types: {', '.join(invalid_types)}"}), 400
+
+    quiz_data = generate_english_quiz(selected_types)
+
+    return jsonify(quiz_data)
     
 # Define a route for generating bingo
-@app.route('/bingo', methods=['POST'])
-def bingo_API():
-     if request.method == 'POST':
-        data = request.get_json()
-        topic = data['topic']
+@app.route('/generate_bingo', methods=['POST'])
+def generate_bingo_cards():
+    data = request.get_json()
+    topic = data.get("topic", "").strip()
+    num_students = data.get("num_students", 1)
 
-        # Validate the required fields
-        if not topic:
-            return jsonify({'error': 'Missing required field'}), 400
+    print(topic,num_students)
+    # Validate the topic
+    if not topic:
+        return jsonify({"error": "Topic is required"}), 400
 
-        # Generate SAT maths quiz
-        response = generate_bingo(topic)
+    # Validate the number of students
+    try:
+        num_students = int(num_students)
+        if num_students < 1:
+            return jsonify({"error": "Number of students must be at least 1"}), 400
+    except ValueError:
+        return jsonify({"error": "Invalid number of students"}), 400
 
-        if response is None:
-            return jsonify({'error': '"Failed to generate bingo'}), 500
+    # Generate bingo cards
+    result = generate_bingo(topic, num_students)
 
-        # Return the generated SAT maths quiz as a response
-        return response, 200
+    if result is None:
+        return jsonify({"error": "Failed to generate bingo cards"}), 500
+
+    # Return the generated bingo cards as JSON
+    return result, 200
 
 
 # Define a route for mystery_game
@@ -1158,18 +1194,68 @@ def mystery_game_API():
         # Return the generated mystery game as a response
         return response, 200
 
-
 # API endpoint to receive data from form and update the Google Sheet
-@app.route("/google_sheet", methods=['POST'])
+# @app.route("/google_sheet", methods=['POST'])
+# def google_sheet():
+#     # Retrieve data from form or JSON request
+#     data = request.get_json() or request.form
+#     full_name = data.get('full_name')
+#     email = data.get('email')
+#     description = data.get('description')
+#     captcha_response = data.get('recaptchaToken')
+#     print(captcha_response)
+#     print(full_name, email,  description)
+
+    
+#     # Get sheet_id and recaptcha secret from environment variables
+#     sheet_id = os.getenv('SHEET_ID')
+#     recaptcha_secret = os.getenv('RECAPTCHA_SECRET_KEY2')
+
+#     print(recaptcha_secret)
+
+#     # Check for required parameters
+#     if not all([full_name, email, description, sheet_id, captcha_response]):
+#         return jsonify({"error": "Please provide all required fields."}), 400
+
+#     # Verify CAPTCHA with Google's reCAPTCHA API
+#     captcha_verify_url = 'https://www.google.com/recaptcha/api/siteverify'
+#     captcha_verify_payload = {'secret': recaptcha_secret, 'response': captcha_response}
+#     captcha_verify_response = requests.post(captcha_verify_url, data=captcha_verify_payload)
+#     captcha_verify_result = captcha_verify_response.json()
+#     print(captcha_verify_result)
+
+#     if not captcha_verify_result.get('success'):
+#         return jsonify({"error": "Invalid CAPTCHA. Please try again."}), 400
+
+#     # Try to update the Google Sheet and return the result
+#     try:
+#         result = update_google_sheet(full_name, email, description, sheet_id)
+#         return result
+#     except Exception as e:
+#         print(f"Error processing request: {e}")
+#         return jsonify({"error": str(e)}), 500
+
+app.route("/google_sheet", methods=['POST'])
 def google_sheet():
     # Retrieve data from form or JSON request
     data = request.get_json() or request.form
+    
     full_name = data.get('full_name')
     email = data.get('email')
+    # country = data.get('country')
+    # profession = data.get('profession')
+    # organization = data.get('organization')
+    # tools_categories = data.get('tools_categories')
     description = data.get('description')
     captcha_response = data.get('recaptchaToken')
+    
+    # Sanitize the input fields to avoid malicious data
+    # full_name = sanitize_input(full_name)
+    # email = sanitize_input(email)
+    # description = sanitize_input(description)
+    
     print(captcha_response)
-    print(full_name, email,  description)
+    print(full_name, email, description)
 
     
     # Get sheet_id and recaptcha secret from environment variables
@@ -1181,6 +1267,34 @@ def google_sheet():
     # Check for required parameters
     if not all([full_name, email, description, sheet_id, captcha_response]):
         return jsonify({"error": "Please provide all required fields."}), 400
+    
+    # Sanitize full_name
+    if not isinstance(full_name, str):
+        return jsonify({"error": "Invalid type for full name"}), 400
+    if full_name.startswith(('=', '+', '-', '@')):
+        return jsonify({"error": "Formula-like entry detected in full name"}), 400
+    if re.search(r'[^a-zA-Z\s\'\-\u00C0-\u00FF]', full_name):
+        return jsonify({"error": "Invalid characters detected in full name"}), 400
+
+    # Sanitize email
+    if not isinstance(email, str):
+        return jsonify({"error": "Invalid type for email"}), 400
+    if email.startswith(('=', '+', '-', '@')):
+        return jsonify({"error": "Formula-like entry detected in email"}), 400
+    try:
+        # Validate the email format using the email_validator
+        valid_email = validate_email(email)
+        email = valid_email.email  # Normalize email
+    except EmailNotValidError:
+        return jsonify({"error": "Invalid email format"}), 400
+
+    # Sanitize description
+    if not isinstance(description, str):
+        return jsonify({"error": "Invalid type for description"}), 400
+    if description.startswith(('=', '+', '-', '@')):
+        return jsonify({"error": "Formula-like entry detected in description"}), 400
+    if re.search(r'[<>\"\'&]', description):
+        return jsonify({"error": "Dangerous characters detected in description"}), 400
 
     # Verify CAPTCHA with Google's reCAPTCHA API
     captcha_verify_url = 'https://www.google.com/recaptcha/api/siteverify'
@@ -1259,6 +1373,7 @@ def generate_vocab_list():
     except Exception as e:
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
+    
 
 @app.route('/generate-tongue-twisters', methods=['POST'])
 def generate_tongue_twisters():
@@ -1322,6 +1437,154 @@ def generate_tongue_twisters():
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
    
+# Comprehension
+
+# Import Comprehension Reading 
+from utils.Assessment.Comprehension.reading.passage import generate_passage
+from utils.Assessment.Comprehension.reading.question import generate_question
+
+@app.route('/generate_passage', methods=['POST'])
+def generate_passage_api():
+    # Parse input JSON
+    data = request.json
+    topic = data.get('topic')
+    difficulty = data.get('difficulty')
+    no_of_words = data.get('no_of_words')
+
+    valid_difficulties = ['easy', 'medium', 'hard']
+
+    # Validate topic
+    if not topic or not isinstance(topic, str):
+        return jsonify({"error": "Topic must be a non-empty string."}), 400
+
+    # Validate difficulty
+    if difficulty not in valid_difficulties:
+        return jsonify({
+            "error": f"Invalid difficulty level: {difficulty}. Choose from {valid_difficulties}."
+        }), 400
+
+    # Validate and convert no_of_words
+    try:
+        no_of_words = int(no_of_words)  # Convert to int if possible
+        if not (500 <= no_of_words <= 1000):
+            raise ValueError()
+    except (ValueError, TypeError):
+        return jsonify({
+            "error": "Number of words must be an integer between 500 and 1000."
+        }), 400
+
+    # Generate the passage
+    passage = generate_passage(
+        topic=topic,
+        difficulty=difficulty,
+        no_of_words=no_of_words,
+    )
+    if passage is None:
+        return jsonify({'error': 'Failed to generate passage'}), 500
+
+    return jsonify({"passage": passage}), 200
+
+
+
+   
+@app.route('/generate_question', methods=['POST'])
+def generate_question_api():
+        # Parse input JSON
+        data = request.json
+        passage = data.get('passage')
+        selected_questions = data.get('selected_questions')
+        questions_per_type = data.get('questions_per_type')
+        
+        valid_question_types = ["True/False", "MCQs", "Fill in the Blanks", "Question/Answer"]
+
+        if not isinstance(selected_questions, list) or not all(q in valid_question_types for q in selected_questions):
+            return jsonify({
+                "error": f"Invalid question type in {selected_questions}. Choose from {valid_question_types}."
+            }), 400
+
+        if not isinstance(questions_per_type, int) or questions_per_type not in [5, 10, 15]:
+            return jsonify({
+                "error": "Questions per type must be a positive integer and one of the following: 5, 10, or 15."
+            }), 400
+
+        # Generate the passage
+        question = generate_question(
+            passage=passage,
+            selected_questions=selected_questions,
+            questions_per_type=questions_per_type,
+        )
+        if question is None:
+            return jsonify({'error': 'Failed to generate question'}), 500
+
+        return question, 200
+        
+
+# Route for generating passage options
+# Import Comprehension Reading 
+from utils.Assessment.Comprehension.writing.writing import generate_writing_options
+from utils.Assessment.Comprehension.writing.writingdata import generate_data_options
+
+@app.route('/generate_writing', methods=['POST'])
+def generate_writing():
+        data = request.json
+        topic = data.get('topic')
+        difficulty = data.get('difficulty')
+        type = data.get('type')
+
+        # Validate inputs
+        if not topic or not difficulty or not type:
+            return jsonify({"error": "Missing required fields: 'topic', 'difficulty', or 'type'"}), 400
+        
+        question = generate_writing_options(topic, difficulty, type)
+        if question is None:
+            return jsonify({"status": "error", "message": "Failed to generate data"}), 500
+
+        return jsonify(question),200
+
+
+# Route for generating data options
+@app.route('/generate_data', methods=['POST'])
+def generate_data():
+        data = request.json
+        difficulty = data.get('difficulty')
+        type = data.get('type')
+        
+        # Validate inputs
+        if not difficulty or not type:
+            return jsonify({"error": "Missing required fields: 'difficulty' or 'type'"}), 400
+        
+        data_response = generate_data_options(difficulty, type)
+        if data_response is None:
+            return jsonify({"status": "error", "message": "Failed to generate data"}), 500
+        return jsonify(data_response),200
+    
+
+
+
+# New import for YT
+from utils.Summarizer.youtube import YT_summary_generation
+
+# New YouTube code (try)
+@app.route('/get_response', methods=['POST'])
+def get_response():
+    try:
+        # Get the topic input from the user
+        topic = request.json.get('topic')
+ 
+        prompt = YT_summary_generation(topic)
+            
+            
+        response_text = prompt
+        print("This is the output:", response_text)
+        
+
+        # Render the result template with the response
+        return response_text
+    
+    except Exception as e:
+        # Render error message
+        return response_text
+
 
 def api_request(auth_token, site_url, endpoint_suffix, Tool_ID,Token):
     """
@@ -1387,5 +1650,6 @@ def use_token(auth_token, site_url,Tool_ID,Token):
     
     return api_request(auth_token, site_url, "use-token",Tool_ID,Token)
 
+    
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=8080)

@@ -3,3 +3,5 @@ env
 Tools.json
 .env
 credentials.json
+.DS_Store
+.DS_Store

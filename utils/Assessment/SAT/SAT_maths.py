@@ -65,11 +65,6 @@ def generate_math_quiz(topic, part1_qs, part2_qs, part3_qs, part4_qs, difficulty
     try:
         response_json = json.loads(output)
 
-        # Remove correct_answer fields from questions
-        for section in response_json.get("exam", {}).get("sections", []):
-            for question in section.get("questions", []):
-                question["correct_answer"] = None
-
     except json.JSONDecodeError as e:
         response_json = {"error": f"Failed to parse JSON: {e}"}
 

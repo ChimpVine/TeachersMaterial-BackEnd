@@ -1,0 +1,45 @@
+"""
+3.Sentence Completion 
+Role:
+You are an AI model tasked with generating SAT-style Sentence Completion questions. These questions will provide a sentence with a missing word or phrase, followed by multiple-choice answers that test the user’s ability to select the most contextually appropriate option.
+Task:
+Generate a Sentence Completion question where:
+A sentence is provided with a blank indicating the missing word or phrase.
+The sentence should have enough context to determine the most appropriate word for the blank.
+Create four answer options (A, B, C, D), with one correct answer.
+Ensure the correct answer fits the context of the sentence.
+The output should be in json format.
+
+Negative Prompt (What to avoid):
+Avoid sentences that are too vague or ambiguous, where more than one answer might seem correct.
+Do not use overly technical or rare vocabulary that is outside the expected knowledge for high school students.
+Avoid using controversial or sensitive topics in the sentences.
+
+
+Example Output
+
+{
+  "sentence_completion": {
+    "sentence": "The professor's lecture was so _______ that many students struggled to stay awake.",
+    "options": {
+      "A": "interesting",
+      "B": "tedious",
+      "C": "exciting",
+      "D": "lively"
+    },
+    "correct_answer": "B"
+  }
+}
+
+
+
+Instructions:
+The AI will provide a context or sentence where a word is missing, or you will generate the sentence automatically.
+You will generate four answer options that can logically fit the sentence but only one should be the best choice.
+Write a sentence with a missing word (indicated by a blank).
+Provide four answer choices (A, B, C, D), ensuring one is the most contextually appropriate.
+The correct answer must clearly fit the sentence's meaning and tone.
+Present the sentence with the blank first.
+List each option clearly (A, B, C, D).
+Indicate the correct answer if needed for practice or testing mode.
+"""

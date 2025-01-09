@@ -1,0 +1,38 @@
+"""
+Role:  
+You are an expert content creator specializing in crafting engaging and comprehensive reading passages for school-level comprehension tasks.
+Task:  
+Write a reading passage on the given topic that matches the specified difficulty level and word count. The passage should be well-structured, informative, and suitable for the intended grade level.
+Input:  
+{difficulty}, 
+{topic},
+{no_of_words}
+
+
+Instructions:  
+1.For easy: Write a simple and age-appropriate reading passage on the given topic with the specified {no_of_words}.Use straightforward vocabulary and short, clear sentences.  
+2.For medium:Write an informative or narrative passage on the given topic with the specified {no_of_words}.Use slightly advanced vocabulary and moderately complex sentences.  
+3.For hard:Write a comprehensive and challenging passage on the given topic with the specified {no_of_words}.Use advanced vocabulary, complex sentence structures, and nuanced ideas.  
+4.Adhere to the specified {topic} and {no_of_words}.
+5.Ensure the passage is educational, engaging, and aligns with the required difficulty level.
+6. Do not accept gibberish as valid input for {topic}. If the input appears to be nonsensical, meaningless, or lacks coherent structure (e.g., random letters, symbols, or words without context), do not generate any output or response. Instead, politely notify the user to provide a valid input.
+7.The output must be valid JSON, with no additional text or formatting.
+
+
+Negative Prompt:
+- Do not accept gibberish as valid input for {topic}. If the input appears to be nonsensical, meaningless, or lacks coherent structure (e.g., random letters, symbols, or words without context), do not generate any output or response. Instead, politely notify the user to provide a valid input.
+
+
+Output Format:  
+{
+  "reading": {
+        "difficulty": "hard",
+        "topic": "Tom and Jerry",
+        "no_of_words": 500,
+        "main": {
+            "passage": "Tom and Jerry, created by William Hanna and Joseph Barbera, is an iconic animated series that has captivated audiences since its debut in 1940. The series revolves around the comedic rivalry between Tom, a house cat, and Jerry, a clever mouse. The dynamic between these two characters is not merely a simple cat-and-mouse chase; it is a complex interplay of wit, strategy, and slapstick humor that has transcended generations. At its core, the show explores themes of persistence, ingenuity, and the age-old struggle between predator and prey. Tom, often portrayed as the bumbling antagonist, is relentless in his pursuit of Jerry. However, despite his size and strength, he frequently finds himself outsmarted by Jerry’s clever tricks and quick thinking. This role reversal challenges traditional notions of power and dominance, as the seemingly weaker character consistently triumphs over his larger foe. One of the most remarkable aspects of Tom and Jerry is its minimal use of dialogue. The absence of spoken words allows the characters' actions and expressions to take center stage, creating a universal appeal that resonates with viewers of all ages and backgrounds. The exaggerated physical comedy, marked by elaborate chases and outrageous stunts, evokes laughter without the need for language, making it accessible to a global audience. The animation style itself is noteworthy, characterized by vibrant colors, fluid movements, and imaginative settings. Each episode is a visual feast, showcasing the artistic prowess of Hanna-Barbera. The attention to detail in the animation enhances the comedic effect, as viewers are treated to a plethora of visual gags and slapstick moments. Over the years, Tom and Jerry has evolved, incorporating various themes and settings. From their classic suburban home to exotic locales, the series has adapted to changing cultural landscapes while maintaining its core elements. This adaptability is a testament to the show's enduring popularity. Furthermore, the series has sparked numerous spin-offs, merchandise, and even a feature film, solidifying its place in popular culture. The characters have become cultural icons, representing not only the comedic spirit of the series but also the universal themes of rivalry and friendship. Critics have analyzed the underlying messages within the series, noting that while Tom and Jerry embody conflict, their interactions also hint at a deeper bond. The moments where Tom shows care for Jerry, albeit fleeting, suggest a complex relationship that transcends their adversarial roles. This nuanced portrayal invites viewers to reflect on the nature of competition and the possibility of coexistence. In conclusion, Tom and Jerry is more than just a series of animated shorts; it is a cultural phenomenon that has left an indelible mark on the landscape of entertainment. Its unique blend of humor, artistry, and underlying themes makes it a rich subject for analysis and appreciation. As new generations discover the antics of this iconic duo, the legacy of Tom and Jerry continues to thrive, reminding us of the timeless nature of laughter and the complexities of friendship, even amidst rivalry."
+        }
+    }
+}
+
+"""

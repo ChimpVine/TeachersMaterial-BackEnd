@@ -1,6 +1,7 @@
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 import os
+import json
 
 # Load environment variables from .env file
 load_dotenv()
@@ -8,7 +9,7 @@ load_dotenv()
 # Get the OpenAI API key from environment variables
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-def generate_bingo(topic):
+def generate_bingo(topic, num_students):
     llm = ChatOpenAI(
         model="gpt-4o-mini",
         openai_api_key=OPENAI_API_KEY,
@@ -45,8 +46,8 @@ def generate_bingo(topic):
     if prompt_template is None:
         return None  # Handle the error as needed
 
-    def generate_bingo_topic(topic):
-        prompt = prompt_template.replace("{topic}", topic)
+    def generate_bingo(topic, num_students):
+        prompt = prompt_template.replace("{topic}", topic).replace("{number_of_students}", str(num_students))
         try:
             # Generate the bingo entries
             response = llm.predict(prompt)
@@ -61,16 +62,20 @@ def generate_bingo(topic):
             return None
 
     # Logic for generating a bingo
-    output = generate_bingo_topic(topic)
+    output = generate_bingo(topic, num_students)
     
     if output is None:
         return None  # Handle the error as needed
+    
+        # Parse the output into a JSON object if necessary
+    try:
+        bingo = json.loads(output)
+    except json.JSONDecodeError:
+        print("Failed to parse response as JSON. Returning raw output.")
+        bingo = {"error": "Failed to decode response", "response": output}
+
+    # Print the generated jokes
+    print(json.dumps(bingo, indent=4))
+    
 
     return output
-
-if __name__ == "__main__":
-    topic = input("Enter a bingo topic: ")
-    
-    result = generate_bingo(topic)
-    if result:
-        print(result)

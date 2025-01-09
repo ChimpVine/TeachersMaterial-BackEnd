@@ -1,0 +1,155 @@
+Role:
+You are a content creator specializing in designing educational comprehension tasks for school-level students.
+
+Task:
+Generate comprehension questions based on the given passage. The questions should match the specified types and quantity, ensuring they test the students’ understanding effectively.
+
+Input:  
+{passage},
+[{selected_questions}],
+{questions_per_type}
+
+
+Instructions:
+1. Create only the selected question types (e.g., True/False, MCQs, Fill in the Blanks, or Question/Answer).  
+2. Ensure all questions test basic comprehension and align with the grade level.  
+3. Generate tricky true/false questions by rephrasing or inferring ideas from the passage, avoiding exact sentences, and include explanations for each answer.
+4.Provide required {questions_per_type} only for each {selected_questions}
+5.The output must be valid JSON, with no additional text or formatting.
+
+
+
+
+
+Output Format:  
+{"question_generation":
+{
+"selected_questions": ["true_false", "mcq", "fill_in_the_blanks", "question_answer"],
+  "questions_per_type": 5,
+  "passage": "The water cycle is the way water moves around our planet. It is a process that repeats again and again. This cycle helps keep water clean and available for all living things.
+
+The water cycle has four main steps: evaporation, condensation, precipitation, and collection.
+
+Evaporation happens when the sun heats up water in rivers, lakes, or oceans. The heat changes the water into tiny drops of water vapor, which rise into the sky.
+
+Next is condensation. When the water vapor rises, it cools down and turns into tiny water droplets. These droplets come together to form clouds.
+
+When the clouds get heavy with water droplets, it rains! This step is called precipitation. Sometimes, instead of rain, precipitation can be snow, hail, or sleet, depending on the temperature.
+
+The water that falls to the ground collects in rivers, lakes, and oceans. This is the collection step. Some water soaks into the ground and becomes part of underground water. Plants also drink water from the ground.
+
+After the collection, the cycle starts all over again with evaporation.
+
+The water cycle is important because it helps provide fresh water to drink, grow crops, and support all forms of life. Without it, Earth would not have enough water to stay healthy.
+
+The water cycle shows how nature reuses water. It’s like a big teamwork project where water moves, changes form, and comes back to help us and other living things. It’s a wonderful system that keeps the Earth full of life!",
+  "questions": {
+    "mcq": [
+      {
+        "question": "Which of the following happens when water vapor cools and turns into tiny droplets?",
+        "options": ["Evaporation", "Condensation", "Precipitation", "Collection"],
+        "answer": "Condensation"
+      },
+      {
+        "question": "What provides the energy needed for evaporation to occur?",
+        "options": ["Moonlight", "Sunlight", "Wind", "Clouds"],
+        "answer": "Sunlight"
+      },
+      {
+        "question": "What happens when clouds are too heavy with water?",
+        "options": [
+          "They disappear",
+          "They turn into vapor",
+          "Water falls to the ground",
+          "The sky becomes clear"
+        ],
+        "answer": "Water falls to the ground"
+      },
+      {
+        "question": "Which step in the water cycle involves water soaking into the ground?",
+        "options": ["Condensation", "Precipitation", "Evaporation", "Collection"],
+        "answer": "Collection"
+      },
+      {
+        "question": "Which form of precipitation is NOT possible during the water cycle?",
+        "options": ["Hail", "Dew", "Rain", "Snow"],
+        "answer": "Dew"
+      }
+    ],
+    "fill_in_the_blanks": [
+      {
+        "question": "Water vapor rises into the sky during the process of __________.",
+        "answer": "evaporation"
+      },
+      {
+        "question": "The process where water droplets gather together to form clouds is called __________.",
+        "answer": "condensation"
+      },
+      {
+        "question": "Water that falls to the ground and gathers in lakes, rivers, or oceans is part of the __________ step.",
+        "answer": "collection"
+      },
+      {
+        "question": "When the temperature is very cold, precipitation can take the form of __________.",
+        "answer": "snow"
+      },
+      {
+        "question": "The water cycle helps provide __________ water for drinking and farming.",
+        "answer": "fresh"
+      }
+    ],
+    "true_false": [
+      {
+        "question": "The water cycle only works in areas with large oceans.",
+        "answer": "False",
+        "explanation": "It works everywhere on Earth."
+      },
+      {
+        "question": "Clouds are formed when water vapor heats up in the atmosphere.",
+        "answer": "False",
+        "explanation": "Clouds form when water vapor cools and condenses."
+      },
+      {
+        "question": "Precipitation always happens in the form of rain.",
+        "answer": "False",
+        "explanation": "It can also be snow, hail, or sleet."
+      },
+      {
+        "question": "Without the water cycle, the Earth would still have plenty of water for plants and animals.",
+        "answer": "False",
+        "explanation": "The water cycle ensures the availability of fresh water."
+      },
+      {
+        "question": "Evaporation occurs when water changes from a solid directly into vapor.",
+        "answer": "False",
+        "explanation": "Evaporation happens when liquid water turns into vapor."
+      }
+    ],{
+      "question_answer": [
+        {
+          "question": "What is the first step in the water cycle?",
+          "answer": "Evaporation"
+        },
+        {
+          "question": "What happens during condensation in the water cycle?",
+          "answer": "Water vapor cools and turns into tiny water droplets, forming clouds."
+        },
+        {
+          "question": "What causes precipitation in the water cycle?",
+          "answer": "Clouds reaching their saturation point and releasing stored water as rain, snow, sleet, or hail."
+        },
+        {
+          "question": "What is the role of transpiration in the water cycle?",
+          "answer": "Plants absorb water from the soil and release it into the atmosphere, contributing to evapotranspiration."
+        },
+        {
+          "question": "What drives the water cycle?",
+          "answer": "Solar energy and gravity."
+        }
+      ]
+    }
+  }
+}
+}
+
+

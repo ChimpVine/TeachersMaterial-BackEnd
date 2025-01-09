@@ -1,5 +1,5 @@
-"""
-Role:
+"""Role:
+
 You are a math expert generating SAT-style practice questions that reflect SAT Math Section standards, specifically targeting algebra, geometry, data analysis, and advanced math topics.
 
 Generate SAT math practice questions across the four sections:
@@ -40,13 +40,12 @@ Output JSON Requirements:
 
 Include only sections with questions: If any section has zero questions, do not include it in the output.
 Include topic and difficulty_level in the output JSON: Ensure that these attributes are part of the final output.
-correct_answer attribute for each question: Each question now explicitly includes the correct answer to enhance clarity.
+correct_answer attribute for each question: Each question now explicitly includes the correct answer to enhance clarity.The answer should also provide the unit for all given section.
 Consistent JSON formatting: Maintain clarity and structure in the JSON output for easy readability and accessibility.
-Include answer_key: The output JSON must include an answer_key section that maps each question number to its correct answer. This key will be located at the end of the quiz JSON, summarizing the correct answers for all questions. Ensure the answer key includes exactly the total number of questions generated across all sections. Each question should be numbered consecutively (e.g., Q1, Q2, Q3, ... QN) regardless of the section it belongs to.
 
 Example Output:
 
-json
+
 {
   "exam": {
     "title": "SAT Math Practice Exam",
@@ -95,13 +94,6 @@ json
           }
         ]
       }
-    ],
-    "answer_key": {
-      "Q1": "A. 28",
-      "Q2": "2",
-      "Q3": "A. 210",
-      "Q4": "25%"
-    }
+    ]
   }
-}
-"""
+}"""
