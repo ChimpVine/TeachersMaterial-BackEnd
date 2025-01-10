@@ -1195,67 +1195,16 @@ def mystery_game_API():
         return response, 200
 
 # API endpoint to receive data from form and update the Google Sheet
-# @app.route("/google_sheet", methods=['POST'])
-# def google_sheet():
-#     # Retrieve data from form or JSON request
-#     data = request.get_json() or request.form
-#     full_name = data.get('full_name')
-#     email = data.get('email')
-#     description = data.get('description')
-#     captcha_response = data.get('recaptchaToken')
-#     print(captcha_response)
-#     print(full_name, email,  description)
-
-    
-#     # Get sheet_id and recaptcha secret from environment variables
-#     sheet_id = os.getenv('SHEET_ID')
-#     recaptcha_secret = os.getenv('RECAPTCHA_SECRET_KEY2')
-
-#     print(recaptcha_secret)
-
-#     # Check for required parameters
-#     if not all([full_name, email, description, sheet_id, captcha_response]):
-#         return jsonify({"error": "Please provide all required fields."}), 400
-
-#     # Verify CAPTCHA with Google's reCAPTCHA API
-#     captcha_verify_url = 'https://www.google.com/recaptcha/api/siteverify'
-#     captcha_verify_payload = {'secret': recaptcha_secret, 'response': captcha_response}
-#     captcha_verify_response = requests.post(captcha_verify_url, data=captcha_verify_payload)
-#     captcha_verify_result = captcha_verify_response.json()
-#     print(captcha_verify_result)
-
-#     if not captcha_verify_result.get('success'):
-#         return jsonify({"error": "Invalid CAPTCHA. Please try again."}), 400
-
-#     # Try to update the Google Sheet and return the result
-#     try:
-#         result = update_google_sheet(full_name, email, description, sheet_id)
-#         return result
-#     except Exception as e:
-#         print(f"Error processing request: {e}")
-#         return jsonify({"error": str(e)}), 500
-
-app.route("/google_sheet", methods=['POST'])
+@app.route("/google_sheet", methods=['POST'])
 def google_sheet():
     # Retrieve data from form or JSON request
     data = request.get_json() or request.form
-    
     full_name = data.get('full_name')
     email = data.get('email')
-    # country = data.get('country')
-    # profession = data.get('profession')
-    # organization = data.get('organization')
-    # tools_categories = data.get('tools_categories')
     description = data.get('description')
     captcha_response = data.get('recaptchaToken')
-    
-    # Sanitize the input fields to avoid malicious data
-    # full_name = sanitize_input(full_name)
-    # email = sanitize_input(email)
-    # description = sanitize_input(description)
-    
     print(captcha_response)
-    print(full_name, email, description)
+    print(full_name, email,  description)
 
     
     # Get sheet_id and recaptcha secret from environment variables
@@ -1267,34 +1216,6 @@ def google_sheet():
     # Check for required parameters
     if not all([full_name, email, description, sheet_id, captcha_response]):
         return jsonify({"error": "Please provide all required fields."}), 400
-    
-    # Sanitize full_name
-    if not isinstance(full_name, str):
-        return jsonify({"error": "Invalid type for full name"}), 400
-    if full_name.startswith(('=', '+', '-', '@')):
-        return jsonify({"error": "Formula-like entry detected in full name"}), 400
-    if re.search(r'[^a-zA-Z\s\'\-\u00C0-\u00FF]', full_name):
-        return jsonify({"error": "Invalid characters detected in full name"}), 400
-
-    # Sanitize email
-    if not isinstance(email, str):
-        return jsonify({"error": "Invalid type for email"}), 400
-    if email.startswith(('=', '+', '-', '@')):
-        return jsonify({"error": "Formula-like entry detected in email"}), 400
-    try:
-        # Validate the email format using the email_validator
-        valid_email = validate_email(email)
-        email = valid_email.email  # Normalize email
-    except EmailNotValidError:
-        return jsonify({"error": "Invalid email format"}), 400
-
-    # Sanitize description
-    if not isinstance(description, str):
-        return jsonify({"error": "Invalid type for description"}), 400
-    if description.startswith(('=', '+', '-', '@')):
-        return jsonify({"error": "Formula-like entry detected in description"}), 400
-    if re.search(r'[<>\"\'&]', description):
-        return jsonify({"error": "Dangerous characters detected in description"}), 400
 
     # Verify CAPTCHA with Google's reCAPTCHA API
     captcha_verify_url = 'https://www.google.com/recaptcha/api/siteverify'
@@ -1313,7 +1234,7 @@ def google_sheet():
     except Exception as e:
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
-
+        
 @app.route('/generate-vocab-list', methods=['POST'])
 def generate_vocab_list():
     data = request.form or request.json
