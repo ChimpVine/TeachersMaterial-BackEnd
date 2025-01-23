@@ -717,6 +717,17 @@ def Social_stories_API():
 
 @app.route('/fun_maths', methods=['POST'])
 def generate_fun_math_API():
+    # Extract headers
+    auth_token = request.headers.get('Authorization')
+    site_url = request.headers.get('X-Site-Url')
+    print(site_url, auth_token)
+
+    # Check if the required headers are present
+    if not auth_token:
+        return jsonify({"error": "Missing 'Authorization' header"}), 400
+    if not site_url:
+        return jsonify({"error": "Missing 'X-Site-Url' header"}), 400
+
     data = request.form or request.json
     grade_level = data.get('grade_level')
     math_topic = data.get('math_topic')
@@ -724,10 +735,42 @@ def generate_fun_math_API():
 
     if not all([grade_level, math_topic, interest]):
         return jsonify({"error": "Please provide grade_level, math_topic, and interest."}), 400
+    # Get the "Lesson Planner" tool details
+    tool = get_tool_by_name(tools, "Social Story")
+    if not tool:
+        return jsonify({"error": "Tool not found"}), 500
 
+    Tool_ID = tool.get('Tool_ID')
+    Token = tool.get('Token')
+    print(f"Tool ID: {Tool_ID}, Token Index: {Token}")
+    # Verify tokens before proceeding
     try:
-        result = math_problem_generation(grade_level, math_topic, interest)
-        return result
+        token_verification = verify_token(auth_token, site_url,Tool_ID,Token)
+
+        # Check if the token verification was successful
+        if token_verification.get('status') == 'success':
+            # Generate social story
+            result = math_problem_generation(grade_level, math_topic, interest)
+
+            # Prepare the response
+            response = jsonify(result)
+            response.status_code = 200
+
+            # Call use_token() only if the status code is 200
+            if response.status_code == 200:
+                use_token(auth_token, site_url,Tool_ID,Token)
+
+            # Return the result
+            return result
+
+        else:
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
+
     except Exception as e:
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
@@ -879,17 +922,61 @@ def text_summarizer_API():
 @app.route('/teacher_joke', methods=['POST'])
 def teacher_joke_API():
     data = request.get_json() or request.form
+    # Extract headers
+    auth_token = request.headers.get('Authorization')
+    site_url = request.headers.get('X-Site-Url')
+    print(site_url, auth_token)
+
+    # Check if the required headers are present
+    if not auth_token:
+        return jsonify({'error': "Missing 'Authorization' header"}), 400
+    if not site_url:
+        return jsonify({'error': "Missing 'X-Site-Url' header"}), 400
+
     topic = data.get('topic')
+    number_of_jokes = data.get('number_of_jokes')
 
     if not topic:
         return jsonify({'error': 'Missing required field: topic'}), 400
+    # Get the "Lesson Planner" tool details
+    tool = get_tool_by_name(tools, "Teacher joke")
+    if not tool:
+        return jsonify({"error": "Tool not found"}), 500
 
-    response = generate_joke(topic)
+    Tool_ID = tool.get('Tool_ID')
+    Token = tool.get('Token')
+    print(f"Tool ID: {Tool_ID}, Token Index: {Token}")
 
-    if response is None:
-        return jsonify({'error': 'No valid response from teacher joke'}), 500
+      # Verify tokens before proceeding
+    try:
+        token_verification = verify_token(auth_token, site_url,Tool_ID,Token)
 
-    return response, 200
+        # Check if the token verification was successful
+        if token_verification.get('status') == 'success':
+            response = generate_joke(topic, number_of_jokes)
+            if response is None:
+                    return jsonify({'error': 'Failed to generate Teacher joke '}), 500
+
+            # Prepare and return the response
+            result = jsonify(response)
+            result.status_code = 200
+
+            # Call use_token() only if the status code is 200
+            if result.status_code == 200:
+                use_token(auth_token, site_url,Tool_ID,Token)
+
+            return response
+        else:
+            # Print the verification response and return its status and message
+            print(token_verification)
+            # Extract status and message from token_verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            print(status_code)
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
+
+    except Exception as e:
+        print(f"Error processing request: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/generate_sel_plan', methods=['POST'])
@@ -1082,7 +1169,7 @@ def SAT_maths_API():
         if part1_qs == 0 and part2_qs == 0 and part3_qs == 0 and part4_qs == 0:
             return jsonify({"error": "At least one question count must be greater than 0."}), 400
         # Get the "Lesson Planner" tool details
-        tool = get_tool_by_name(tools, "Make the Word")
+        tool = get_tool_by_name(tools, "SAT maths")
         if not tool:
             return jsonify({"error": "Tool not found"}), 500
 
@@ -1146,6 +1233,17 @@ def generate_english_quiz_route():
 @app.route('/generate_bingo', methods=['POST'])
 def generate_bingo_cards():
     data = request.get_json()
+    # Extract headers
+    auth_token = request.headers.get('Authorization')
+    site_url = request.headers.get('X-Site-Url')
+    print(site_url, auth_token)
+
+    # Check if the required headers are present
+    if not auth_token:
+        return jsonify({'error': "Missing 'Authorization' header"}), 400
+    if not site_url:
+        return jsonify({'error': "Missing 'X-Site-Url' header"}), 400
+
     topic = data.get("topic", "").strip()
     num_students = data.get("num_students", 1)
 
@@ -1161,15 +1259,43 @@ def generate_bingo_cards():
             return jsonify({"error": "Number of students must be at least 1"}), 400
     except ValueError:
         return jsonify({"error": "Invalid number of students"}), 400
+    # Get the "Lesson Planner" tool details
+    tool = get_tool_by_name(tools, "SAT maths")
+    if not tool:
+        return jsonify({"error": "Tool not found"}), 500
 
-    # Generate bingo cards
-    result = generate_bingo(topic, num_students)
+    Tool_ID = tool.get('Tool_ID')
+    Token = tool.get('Token')
+    print(f"Tool ID: {Tool_ID}, Token Index: {Token}")
 
-    if result is None:
-        return jsonify({"error": "Failed to generate bingo cards"}), 500
+    # Verify tokens before proceeding
+    try:
+        token_verification = verify_token(auth_token, site_url,Tool_ID,Token)
 
-    # Return the generated bingo cards as JSON
-    return result, 200
+        # Check if the token verification was successful
+        if token_verification.get('status') == 'success':
+            # Generate SAT maths quiz
+            response = generate_bingo(topic, num_students)
+            if response is None:
+                return jsonify({'error': 'Failed to generate SAT math quiz'}), 500
+
+            result = jsonify(response)
+            result.status_code = 200
+
+            # Use the token if everything is good
+            if result.status_code == 200:
+                use_token(auth_token, site_url, Tool_ID, Token)
+
+            return result
+        else:
+            print(token_verification)
+            # Return error response based on token verification
+            status_code = token_verification.get('code', 400)  # Default to 400 if not present
+            return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
+
+    except Exception as e:
+        print(f"Error processing request: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 # Define a route for mystery_game
@@ -1177,6 +1303,17 @@ def generate_bingo_cards():
 def mystery_game_API():
      if request.method == 'POST':
         data = request.get_json()
+        # Extract headers
+        auth_token = request.headers.get('Authorization')
+        site_url = request.headers.get('X-Site-Url')
+        print(site_url, auth_token)
+
+        # Check if the required headers are present
+        if not auth_token:
+            return jsonify({'error': "Missing 'Authorization' header"}), 400
+        if not site_url:
+            return jsonify({'error': "Missing 'X-Site-Url' header"}), 400
+
         topic = data['topic']
         difficulty = data['difficulty']
         no_of_clues= data['no_of_clues']
@@ -1184,15 +1321,44 @@ def mystery_game_API():
         # Validate the required fields
         if not all([topic, difficulty, no_of_clues]):
             return jsonify({'error': 'Missing required field(s)'}), 400
+        # Get the "Lesson Planner" tool details
+        tool = get_tool_by_name(tools, "Mystery game")
+        if not tool:
+            return jsonify({"error": "Tool not found"}), 500
 
-        # Generate mystery game
-        response = generate_mysterycase(topic, difficulty, no_of_clues)
+        Tool_ID = tool.get('Tool_ID')
+        Token = tool.get('Token')
+        print(f"Tool ID: {Tool_ID}, Token Index: {Token}")
 
-        if response is None:
-            return jsonify({'error': '"Failed to generate mystery game'}), 500
+        # Verify tokens before proceeding
+        try:
+            token_verification = verify_token(auth_token, site_url,Tool_ID,Token)
 
-        # Return the generated mystery game as a response
-        return response, 200
+            # Check if the token verification was successful
+            if token_verification.get('status') == 'success':
+                # Generate SAT maths quiz
+                response = generate_mysterycase(topic, difficulty, no_of_clues)
+                if response is None:
+                    return jsonify({'error': 'Failed to generate Mystery game quiz'}), 500
+
+                result = jsonify(response)
+                result.status_code = 200
+
+                # Use the token if everything is good
+                if result.status_code == 200:
+                    use_token(auth_token, site_url, Tool_ID, Token)
+
+                return result
+            else:
+                print(token_verification)
+                # Return error response based on token verification
+                status_code = token_verification.get('code', 400)  # Default to 400 if not present
+                return jsonify({'error': token_verification.get('message', 'Token verification failed')}), status_code
+
+        except Exception as e:
+            print(f"Error processing request: {e}")
+            return jsonify({'error': str(e)}), 500
+
 
 # API endpoint to receive data from form and update the Google Sheet
 @app.route("/google_sheet", methods=['POST'])
@@ -1217,24 +1383,39 @@ def google_sheet():
     if not all([full_name, email, description, sheet_id, captcha_response]):
         return jsonify({"error": "Please provide all required fields."}), 400
 
+    # # Verify CAPTCHA with Google's reCAPTCHA API
+    # captcha_verify_url = 'https://www.google.com/recaptcha/api/siteverify'
+    # captcha_verify_payload = {'secret': recaptcha_secret, 'response': captcha_response}
+    # captcha_verify_response = requests.post(captcha_verify_url, data=captcha_verify_payload)
+    # captcha_verify_result = captcha_verify_response.json()
+    # print(captcha_verify_result)
+
+    # if not captcha_verify_result.get('success'):
+    #     return jsonify({"error": "Invalid CAPTCHA. Please try again."}), 400
     # Verify CAPTCHA with Google's reCAPTCHA API
     captcha_verify_url = 'https://www.google.com/recaptcha/api/siteverify'
     captcha_verify_payload = {'secret': recaptcha_secret, 'response': captcha_response}
     captcha_verify_response = requests.post(captcha_verify_url, data=captcha_verify_payload)
+
+    # Log the verification payload and response
+    print(f"CAPTCHA Verification Payload: {captcha_verify_payload}")
+    print(f"CAPTCHA Verification Response: {captcha_verify_response.text}")
+
     captcha_verify_result = captcha_verify_response.json()
-    print(captcha_verify_result)
 
     if not captcha_verify_result.get('success'):
-        return jsonify({"error": "Invalid CAPTCHA. Please try again."}), 400
+        error_codes = captcha_verify_result.get('error-codes', [])
+        print(f"CAPTCHA failed with error codes: {error_codes}")
+        return jsonify({"error": "Invalid CAPTCHA. Please try again.", "error_codes": error_codes}), 400
 
-    # Try to update the Google Sheet and return the result
+        # Try to update the Google Sheet and return the result
     try:
         result = update_google_sheet(full_name, email, description, sheet_id)
         return result
     except Exception as e:
         print(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
-        
+
 @app.route('/generate-vocab-list', methods=['POST'])
 def generate_vocab_list():
     data = request.form or request.json
@@ -1486,7 +1667,7 @@ def generate_data():
 from utils.Summarizer.youtube import YT_summary_generation
 
 # New YouTube code (try)
-@app.route('/get_response', methods=['POST'])
+@app.route('/YT_summary', methods=['POST'])
 def get_response():
     try:
         # Get the topic input from the user
